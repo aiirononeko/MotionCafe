@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'ui/home_screen.dart';
@@ -6,11 +7,15 @@ import 'view_model/home_view_model.dart';
 import '/service/login.dart';
 
 void main() async {
-  // firebase初期化処理
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // firebase初期化処理
   await Firebase.initializeApp();
-  // アプリ起動時自動ログイン
-  await authenticationUser();
+  
+  if (FirebaseAuth.instance.currentUser == null) {
+    // 自動ログイン
+    await authenticationUser();
+  }
 
   runApp(const MyApp());
 }
