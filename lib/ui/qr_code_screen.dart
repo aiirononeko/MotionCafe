@@ -1,8 +1,10 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:motion_cafe/service/hex_color.dart';
 import 'package:motion_cafe/view_model/home_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import '../utils/widget_utils.dart';
 
 class QRCodeScreen extends StatelessWidget {
   QRCodeScreen({Key? key}) : super(key: key);
@@ -12,6 +14,7 @@ class QRCodeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
+          backgroundColor: HexColor("FC2951"),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -32,6 +35,7 @@ class QRCodeScreen extends StatelessWidget {
           listen: false,
         ).setController(controller);
         controller.scannedDataStream.listen((scanData) {
+          WidgetUtils().showProgressDialog(context);
           Provider.of<HomeViewModel>(
             context,
             listen: false,

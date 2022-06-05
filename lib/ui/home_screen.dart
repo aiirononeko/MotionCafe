@@ -4,6 +4,7 @@ import '../service/hex_color.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:motion_cafe/view_model/home_view_model.dart';
 import './qr_code_screen.dart';
+import '../utils/widget_utils.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -12,6 +13,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: HexColor("DADADA"),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: HexColor("FC2951"),
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(
@@ -19,7 +21,7 @@ class HomeScreen extends StatelessWidget {
             ),
           );
         },
-        child: const Icon(Icons.camera),
+        child: const Icon(Icons.qr_code_scanner_outlined),
       ),
       body: _paymentWidget(context),
     );
@@ -135,7 +137,7 @@ class HomeScreen extends StatelessWidget {
                         ),
                         child: Row(
                           children: <Widget>[
-                            Container(
+                            SizedBox(
                               child: SvgPicture.asset(
                                 "assets/bill.svg",
                               ),
@@ -144,7 +146,7 @@ class HomeScreen extends StatelessWidget {
                               width: width * 0.01,
                             ),
                             Text(
-                              "BILL",
+                              "BILLING",
                               style: TextStyle(
                                 fontSize: width * 0.015,
                               ),
@@ -178,7 +180,10 @@ class HomeScreen extends StatelessWidget {
                                     listen: false,
                                   ).setOriginalAmount(value.toString());
                                 },
-                                initialValue: "0",
+                                initialValue:
+                                    Provider.of<HomeViewModel>(context)
+                                        .originalAmount
+                                        .toString(),
                               ),
                             ),
                             SizedBox(
@@ -186,7 +191,7 @@ class HomeScreen extends StatelessWidget {
                             ),
                             Text(
                               "yen",
-                              style: TextStyle(fontSize: width * 0.02),
+                              style: TextStyle(fontSize: width * 0.015),
                             ),
                           ],
                         ),
@@ -227,17 +232,18 @@ class HomeScreen extends StatelessWidget {
                               SizedBox(
                                 width: width * 0.01,
                               ),
-                              const Text(
+                              Text(
                                 "TICKETS",
+                                style: TextStyle(
+                                  fontSize: width * 0.015,
+                                ),
                               ),
                               SizedBox(
                                 width: width * 0.02,
                               ),
-                              // firebaseから取得したチケット枚数の分だけ選択肢を表示する
                               DropdownButton(
                                 items: Provider.of<HomeViewModel>(context)
                                     .dropDownButtonList(),
-                                // 選択されたチケット枚数をセットする
                                 onChanged: (value) => {
                                   Provider.of<HomeViewModel>(
                                     context,
@@ -255,44 +261,27 @@ class HomeScreen extends StatelessWidget {
                         width: width * 0.208,
                         height: height * 0.18,
                         child: Container(
-                          padding: EdgeInsets.all(width * 0.04),
-                          child: OutlineButton(
+                          padding: EdgeInsets.all(width * 0.042),
+                          child: ElevatedButton(
                             child: const Text(
-                              "settlement",
+                              "Check out",
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              primary: Provider.of<HomeViewModel>(context)
+                                  .checkIsPremiumCardColor(),
+                              textStyle: TextStyle(
+                                fontSize: width * 0.02,
+                              ),
                             ),
                             onPressed: () async {
                               Provider.of<HomeViewModel>(
                                 context,
                                 listen: false,
                               ).calAmount();
-                              await showDialog<String>(
-                                context: context,
-                                builder: (_) {
-                                  return AlertDialog(
-                                    title: const Text("決済確認"),
-                                    content: Text(
-                                        "合計金額 : ${Provider.of<HomeViewModel>(context).calculateAmount} yen"),
-                                    actions: <Widget>[
-                                      ElevatedButton(
-                                        child: const Text("Cancel"),
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                      ),
-                                      ElevatedButton(
-                                        child: const Text("OK"),
-                                        onPressed: () async {
-                                          Navigator.pop(context);
-                                          await Provider.of<HomeViewModel>(
-                                            context,
-                                            listen: false,
-                                          ).send();
-                                        },
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
+                              Provider.of<HomeViewModel>(
+                                context,
+                                listen: false,
+                              ).checkShowDialog(context);
                             },
                           ),
                         ),

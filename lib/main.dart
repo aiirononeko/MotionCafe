@@ -27,6 +27,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider<HomeViewModel>(
       create: (context) => HomeViewModel(),
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: "Motion Cafe",
         home: GestureDetector(
           onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
