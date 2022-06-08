@@ -10,16 +10,16 @@ import '../utils/widget_utils.dart';
 class HomeViewModel with ChangeNotifier {
   int _originalAmount = 0; // 入力時の合計金額
   int _calculateAmount = 0; // 会計時の合計金額
-  int _tickets = 0; // 所持しているチケット枚数
+  int _coffeeTickets = 0; // 所持しているチケット枚数
   int _selectedTicketsNum = 0; // 使用するチケットの枚数
   int _points = 0; // ポイント数
-  bool _premium = false; // プレミアムメンバー
+  bool _isPremium = false; // プレミアムメンバー
   String _uid = ""; // ユーザーID
   int get originalAmount => _originalAmount;
   int get calculateAmount => _calculateAmount;
-  int get tickets => _tickets;
+  int get coffeeTickets => _coffeeTickets;
   int get selectedTicketsNum => _selectedTicketsNum;
-  bool get premium => _premium;
+  bool get isPremium => _isPremium;
   String get uid => _uid;
   QRViewController? controller; // QRコードを読み取る時に必要な変数
 
@@ -30,7 +30,7 @@ class HomeViewModel with ChangeNotifier {
   }
 
   Color checkIsPremiumCardColor() {
-    if (_premium) {
+    if (_isPremium) {
       // プレミアム会員の場合
       return HexColor("FAFF00");
     } else {
@@ -47,16 +47,16 @@ class HomeViewModel with ChangeNotifier {
         await firestore.collection('Customers').doc(_uid).get();
     Map<String, dynamic>? customerData =
         snapshot.data() as Map<String, dynamic>?;
-    _tickets = customerData!["coffeeTickets"];
-    _premium = customerData["isPremium"];
+    _coffeeTickets = customerData!["coffeeTickets"];
+    _isPremium = customerData["isPremium"];
     _points = customerData["points"];
-    _selectedTicketsNum = _tickets;
+    _selectedTicketsNum = _coffeeTickets;
     notifyListeners();
   }
 
   Future<void> send() async {
     _points += originalAmount ~/ 500; // 500円あたり1ポイント
-    _tickets += _points ~/ 10; // 10ポイントあたり1コーヒーチケット
+    _coffeeTickets += _points ~/ 10; // 10ポイントあたり1コーヒーチケット
 
     // ポイントが10を超えないようにする処理
     while (_points >= 10) {
@@ -68,7 +68,7 @@ class HomeViewModel with ChangeNotifier {
     await firestore.collection('Customers').doc(_uid).update(
       {
         "points": _points,
-        "coffeeTickets": (_tickets - selectedTicketsNum),
+        "coffeeTickets": (_coffeeTickets - selectedTicketsNum),
       },
     );
     notifyListeners();
@@ -83,20 +83,14 @@ class HomeViewModel with ChangeNotifier {
   // 選択チケット枚数と会員の種類で合計金額を計算する
   void calAmount() {
     _calculateAmount = _originalAmount;
-    _calculateAmount -= premium ? 800 : 0;
+    _calculateAmount -= isPremium ? 800 : 0;
     _calculateAmount -= selectedTicketsNum * 800;
     _calculateAmount = _calculateAmount < 0 ? 0 : _calculateAmount;
     notifyListeners();
   }
 
-  // ユーザーの使用できるチケット数をticketsにセットする
-  void setTickets(String value) {
-    _tickets = value.isEmpty ? 0 : int.parse(value);
-    notifyListeners();
-  }
-
-  // 会計で使用するチケット数をselectedTicketsNumにセットする
-  void setSelectedTicketsNum(String selectedNum) {
+  // 会計で使用するチケット数をセットする
+  void setSelectedCoffeeTickets(String selectedNum) {
     _selectedTicketsNum = int.parse(selectedNum);
     notifyListeners();
   }
@@ -104,7 +98,7 @@ class HomeViewModel with ChangeNotifier {
   // チケット枚数を選択する時に使うリストをセットする
   List<DropdownMenuItem<int>> dropDownButtonList() {
     List<DropdownMenuItem<int>> list = [];
-    for (var i = 0; i <= _tickets; i++) {
+    for (var i = 0; i <= _coffeeTickets; i++) {
       list.add(
         DropdownMenuItem(
           child: Text(
@@ -117,6 +111,7 @@ class HomeViewModel with ChangeNotifier {
     return list;
   }
 
+  // ダイアログ処理
   Future<void> checkShowDialog(BuildContext context) async {
     if (_uid.isEmpty) {
       await showDialog(
@@ -233,9 +228,9 @@ class HomeViewModel with ChangeNotifier {
     _originalAmount = 0;
     _calculateAmount = 0;
     _points = 0;
-    _tickets = 0;
+    _coffeeTickets = 0;
     _selectedTicketsNum = 0;
-    _premium = false;
+    _isPremium = false;
     notifyListeners();
   }
 }

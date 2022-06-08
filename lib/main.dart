@@ -8,10 +8,10 @@ import '/service/login.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // firebase初期化処理
   await Firebase.initializeApp();
-  
+
   if (FirebaseAuth.instance.currentUser == null) {
     // 自動ログイン
     await authenticationUser();

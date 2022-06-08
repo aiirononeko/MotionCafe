@@ -4,7 +4,6 @@ import '../service/hex_color.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:motion_cafe/view_model/home_view_model.dart';
 import './qr_code_screen.dart';
-import '../utils/widget_utils.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -248,7 +247,7 @@ class HomeScreen extends StatelessWidget {
                                   Provider.of<HomeViewModel>(
                                     context,
                                     listen: false,
-                                  ).setSelectedTicketsNum(value.toString())
+                                  ).setSelectedCoffeeTickets(value.toString())
                                 },
                                 value: Provider.of<HomeViewModel>(context)
                                     .selectedTicketsNum,
